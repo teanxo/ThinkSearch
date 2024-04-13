@@ -34,7 +34,7 @@ $requestParams = [
     "create_time" => "2024-01-01,2024,03-01"
 ];
 
-$searchWhere = TpSearch::getInstance($requestParams)
+$searchWhere = ThinkSearch::getInstance($requestParams)
     ->addMapping(columnName:"username", selectType: SearchType::Like, desc: "用户名")
     ->addMapping(columnName:"create_time", selectType: SearchType::BetweenTime, desc: "创建时间")
     ->build();
@@ -72,7 +72,7 @@ $requestParams = [
     "level" => "1",
 ];
 
-$searchWhere = TpSearch::getInstance($requestParams)
+$searchWhere = ThinkSearch::getInstance($requestParams)
     ->addMapping(
         columnName: "level",
         aliasName: "c.level",
@@ -112,7 +112,7 @@ $requestParams = [
     "type" => "1",
 ];
 
-$searchWhere = TpSearch::getInstance($requestParams)
+$searchWhere = ThinkSearch::getInstance($requestParams)
     ->addMapping(
         columnName: "type",
         nameFormatter: fn ($val) => match((int)$val){
@@ -139,7 +139,7 @@ $requestParams = [
             "level" => "1"
         ];
 
-        $searchSql = TpSearch::getInstance($requestParams)
+        $searchSql = ThinkSearch::getInstance($requestParams)
             ->addMapping(
                 columnName: "type",
                 nameFormatter: fn ($val) => match((int)$val){
