@@ -1,0 +1,20 @@
+{
+    "name": "teanxo/think-search",
+    "require": {
+        "php": ">=7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Teanxo\\ThinkSearch\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "teanxo",
+            "email": "483586199@qq.com"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^11"
+    }
+}
