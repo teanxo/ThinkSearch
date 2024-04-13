@@ -13,7 +13,7 @@ if (!isset($keyword)){
 $create_time = $request->get("create_time");
 if (!isset($create_time)){
     $times = explode($create_time)
-    $where[] = ['u.create_time', 'between', $times[0], $time[1]];
+    $where[] = ['u.create_time', 'between', $times[0], $times[1]];
 }
 
 ...此处省略其它代码
