@@ -31,7 +31,7 @@ if (!isset($create_time)){
 // 假设这是前端请求时传入的查询参数
 $requestParams = [
     "username" => "1111",
-    "create_time" => "2024-01-01,2024,03-01"
+    "create_time" => "2024-01-01,2024-03-01"
 ];
 
 $searchWhere = ThinkSearch::getInstance($requestParams)
@@ -39,10 +39,45 @@ $searchWhere = ThinkSearch::getInstance($requestParams)
     ->addMapping(columnName:"create_time", selectType: SearchType::BetweenTime, desc: "创建时间")
     ->build();
 
-// 您得到了一个可用于ORM查询的数组，那么直接可使用orm模型的where语句进行搜索
+// 您得到了一个可用于ORM查询的数组
 Db::table("you_table")->where($searchWhere);
 ```
 
+### 输出SQL(复杂实例)
+```php
+$requestParams = [
+            "type" => "1",
+            "keyword" => "13277777777",
+            "create_time" => "2024-01-01,2024-03-01",
+            "level" => "1"
+        ];
+
+        $searchSql = ThinkSearch::getInstance($requestParams)
+            ->addMapping(
+                columnName: "type",
+                nameFormatter: fn ($val) => match((int)$val){
+                    1 => "a.email",
+                    2 => "a.phone"
+                },
+                desc: "注册类型"
+            )
+            ->addMapping(columnName: "keyword", aliasName: "u.username|u.phone|u.account", selectType: SearchType::Like,desc: "关键信息")
+            ->addMapping(columnName: "create_time", aliasName: "u.create_time", selectType: SearchType::BetweenTime, desc: "用户创建时间")
+            ->addMapping(
+                columnName: "level",
+                aliasName: "u.level",
+                valueFormater: fn ($val) => match((int)$val){
+                    1 => [1,2,3],
+                    2 => [4,5,6]
+                },
+                desc: "身份类型",
+                selectType: SearchType::In
+            )
+            ->buildSql(isAutoWhere: true);
+// 结果输出
+WHERE a.email = '1' AND ( u.username LIKE '13277777777'  OR  u.phone LIKE '13277777777'  OR  u.account LIKE '13277777777' ) AND u.create_time BETWEEN 1704067200 AND 1709337599 AND u.level IN (1,2,3)
+
+```
 
 
 ### 时间查询
@@ -129,43 +164,6 @@ Array
     [a.email] => 1
 )
 ```
-
-### 输出SQL(复杂实例)
-```php
-$requestParams = [
-            "type" => "1",
-            "keyword" => "13277777777",
-            "create_time" => "2024-01-01,2024-03-01",
-            "level" => "1"
-        ];
-
-        $searchSql = ThinkSearch::getInstance($requestParams)
-            ->addMapping(
-                columnName: "type",
-                nameFormatter: fn ($val) => match((int)$val){
-                    1 => "a.email",
-                    2 => "a.phone"
-                },
-                desc: "注册类型"
-            )
-            ->addMapping(columnName: "keyword", aliasName: "u.username|u.phone|u.account", selectType: SearchType::Like,desc: "关键信息")
-            ->addMapping(columnName: "create_time", aliasName: "u.create_time", selectType: SearchType::BetweenTime, desc: "用户创建时间")
-            ->addMapping(
-                columnName: "level",
-                aliasName: "u.level",
-                valueFormater: fn ($val) => match((int)$val){
-                    1 => [1,2,3],
-                    2 => [4,5,6]
-                },
-                desc: "身份类型",
-                selectType: SearchType::In
-            )
-            ->buildSql(isAutoWhere: true);
-// 结果输出
-WHERE a.email = '1' AND ( u.username LIKE '13277777777'  OR  u.phone LIKE '13277777777'  OR  u.account LIKE '13277777777' ) AND u.create_time BETWEEN 1704067200 AND 1709337599 AND u.level IN (1,2,3)
-
-```
-
 
 ### 注意事项
 1. 搜索器默认会过滤空字符串及空数组，若您觉得不满意可指定filter自定义规则函数
